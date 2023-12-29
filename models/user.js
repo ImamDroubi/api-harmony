@@ -1,5 +1,5 @@
 'use strict';
-import { Model } from 'sequelize';
+const {Model} = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class User extends Model {
     /**
@@ -39,14 +39,14 @@ module.exports = (sequelize, DataTypes) => {
   User.init({
     id:{
       type : DataTypes.UUID,
-      defaulValue: DataTypes.UUIDV4,
+      defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
       unique : true,
-      allowNull : false
     },
     username :{
       type: DataTypes.STRING,
       allowNull : false,
+      unique : true,
       validate:{
         min:6,
         max:15,
@@ -56,6 +56,7 @@ module.exports = (sequelize, DataTypes) => {
     email:{
       type : DataTypes.STRING,
       allowNull : false,
+      unique : true,
       validate:{
         isEmail:true,
         notEmpty: true, 
@@ -64,9 +65,6 @@ module.exports = (sequelize, DataTypes) => {
     password:{
       type: DataTypes.STRING,
       allowNull: false,
-      validate:{
-        is: ["^(?=.*[a-z])(?=.*[A-Z])[A-Za-z]{8,}$"],// min 8 chars,one upper one lower letter
-      }
     },
     profilePicture : {
       type: DataTypes.STRING,

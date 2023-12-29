@@ -1,6 +1,5 @@
 'use strict';
 
-const {DataTypes} = require("sequelize");
 
 /** @type {import('sequelize-cli').Migration} */
 
@@ -8,14 +7,13 @@ module.exports = {
   up : (queryInterface, Sequelize)=> {
     return queryInterface.createTable('likes',{
       id:{
-        type : DataTypes.UUID,
-        defaulValue: DataTypes.UUIDV4,
+        type : Sequelize.UUID,
+        defaultValue: Sequelize.UUIDV4,
         primaryKey: true,
-        unique : true,
-        allowNull : false
+        unique : true
       },
       userId: {
-        type: DataTypes.UUID,
+        type: Sequelize.UUID,
         onDelete: 'CASCADE',
         references: {
           model: 'Users',
@@ -23,11 +21,11 @@ module.exports = {
         }
       },
       objectId:{
-        type : DataTypes.UUID,
+        type : Sequelize.UUID,
         allowNull : false
       },
       type:{
-        type : DataTypes.STRING,
+        type : Sequelize.STRING,
         allowNull : false,
       },
       createdAt: {

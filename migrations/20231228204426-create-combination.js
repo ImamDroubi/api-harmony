@@ -1,21 +1,18 @@
 'use strict';
 
-const {DataTypes} = require("sequelize");
-
 /** @type {import('sequelize-cli').Migration} */
 
 module.exports = {
   up : (queryInterface, Sequelize)=> {
     return queryInterface.createTable('combinations',{
       id:{
-        type : DataTypes.UUID,
-        defaulValue: DataTypes.UUIDV4,
+        type : Sequelize.UUID,
+        defaultValue: Sequelize.UUIDV4,
         primaryKey: true,
-        unique : true,
-        allowNull : false
+        unique : true
       },
       name :{
-        type: DataTypes.STRING,
+        type: Sequelize.STRING,
         allowNull : false,
         validate:{
           max:30,
@@ -23,13 +20,13 @@ module.exports = {
         }
       },
       category:{
-        type: DataTypes.STRING,
+        type: Sequelize.STRING,
         validate :{
           max:30
         }
       },
       userId: {
-        type: DataTypes.UUID,
+        type: Sequelize.UUID,
         onDelete: 'CASCADE',
         references: {
           model: 'Users',
@@ -37,7 +34,7 @@ module.exports = {
         }
       },
       isPublic:{
-        type : DataTypes.BOOLEAN,
+        type : Sequelize.BOOLEAN,
         defaulValue : false
       },
       createdAt: {

@@ -1,5 +1,5 @@
 'use strict';
-import { Model } from 'sequelize';
+const {Model} = require('sequelize');
 module.exports =(sequelize, DataTypes) => {
   class Combination extends Model {
     /**
@@ -16,10 +16,9 @@ module.exports =(sequelize, DataTypes) => {
   Combination.init({
     id:{
       type : DataTypes.UUID,
-      defaulValue: DataTypes.UUIDV4,
+      defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
       unique : true,
-      allowNull : false
     },
     name :{
       type: DataTypes.STRING,

@@ -1,6 +1,5 @@
 'use strict';
 
-const {DataTypes} = require("sequelize");
 
 /** @type {import('sequelize-cli').Migration} */
 
@@ -8,7 +7,7 @@ module.exports = {
   up : (queryInterface, Sequelize)=> {
     return queryInterface.createTable('tracks_combinations',{
       trackId: {
-        type: DataTypes.UUID,
+        type: Sequelize.UUID,
         onDelete: 'CASCADE',
         primaryKey: true,
         references: {
@@ -17,7 +16,7 @@ module.exports = {
         }
       },
       combinationId: {
-        type: DataTypes.UUID,
+        type: Sequelize.UUID,
         onDelete: 'CASCADE',
         primaryKey: true,
         references: {
@@ -26,7 +25,7 @@ module.exports = {
         }
       },
       volume:{
-        type : DataTypes.INTEGER,
+        type : Sequelize.INTEGER,
         defaulValue: 50,
         allowNull : false
       },

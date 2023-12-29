@@ -1,20 +1,19 @@
 'use strict';
 
-const {DataTypes} = require("sequelize");
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
 up : (queryInterface, Sequelize)=> {
   return queryInterface.createTable('users', {
     id:{
-      type : DataTypes.UUID,
-      defaulValue: DataTypes.UUIDV4,
+      type : Sequelize.UUID,
+      defaultValue: Sequelize.UUIDV4,
       primaryKey: true,
       unique : true,
-      allowNull : false
     },
     username :{
-      type: DataTypes.STRING,
+      type: Sequelize.STRING,
       allowNull : false,
+      unique : true,
       validate:{
         min:6,
         max:15,
@@ -22,22 +21,20 @@ up : (queryInterface, Sequelize)=> {
       }
     },
     email:{
-      type : DataTypes.STRING,
+      type : Sequelize.STRING,
       allowNull : false,
+      unique : true,
       validate:{
         isEmail:true,
         notEmpty: true, 
       }
     },
     password:{
-      type: DataTypes.STRING,
+      type: Sequelize.STRING,
       allowNull: false,
-      validate:{
-        is: ["^(?=.*[a-z])(?=.*[A-Z])[A-Za-z]{8,}$"],// min 8 chars,one upper one lower letter
-      }
     },
     profilePicture : {
-      type: DataTypes.STRING,
+      type: Sequelize.STRING,
       validate:{
         isUrl : true,
       }

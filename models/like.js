@@ -1,5 +1,5 @@
 'use strict';
-import { Model } from 'sequelize';
+const {Model} = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   const allowedObjects = ["user" , "track", "combination"];
   class Like extends Model {
@@ -16,10 +16,9 @@ module.exports = (sequelize, DataTypes) => {
   Like.init({
     id:{
       type : DataTypes.UUID,
-      defaulValue: DataTypes.UUIDV4,
+      defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
       unique : true,
-      allowNull : false
     },
     objectId:{
       type : DataTypes.UUID,
