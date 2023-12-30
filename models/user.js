@@ -72,6 +72,10 @@ module.exports = (sequelize, DataTypes) => {
         isUrl : true,
       }
     },
+    isAdmin:{
+      type : DataTypes.BOOLEAN,
+      defaultValue : false
+    }
   }, {
     sequelize,
     modelName: 'User',

@@ -26,6 +26,9 @@ module.exports = {
           isUrl : true,
         }
       },
+      photoUrl :{
+        type : Sequelize.STRING,
+      },
       category:{
         type: Sequelize.STRING,
         validate :{
@@ -43,7 +46,7 @@ module.exports = {
       duration: Sequelize.INTEGER,
       isPublic:{
         type : Sequelize.BOOLEAN,
-        defaulValue : false
+        defaultValue : false
       },
       createdAt: {
         allowNull: false,

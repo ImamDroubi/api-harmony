@@ -35,6 +35,12 @@ module.exports =(sequelize, DataTypes) => {
         isUrl : true,
       }
     },
+    photoUrl :{
+      type : DataTypes.STRING,
+      validate:{
+        isUrl : true
+      }
+    },
     category:{
       type: DataTypes.STRING,
       validate :{
@@ -44,7 +50,7 @@ module.exports =(sequelize, DataTypes) => {
     duration: DataTypes.INTEGER,
     isPublic:{
       type : DataTypes.BOOLEAN,
-      defaulValue : false
+      defaultValue : false
     }
   }, {
     sequelize,

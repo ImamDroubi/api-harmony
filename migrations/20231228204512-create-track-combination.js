@@ -26,7 +26,7 @@ module.exports = {
       },
       volume:{
         type : Sequelize.INTEGER,
-        defaulValue: 50,
+        defaultValue: 50,
         allowNull : false
       },
       createdAt: {

@@ -39,6 +39,10 @@ up : (queryInterface, Sequelize)=> {
         isUrl : true,
       }
     },
+    isAdmin:{
+      type : Sequelize.BOOLEAN,
+      defaultValue : false
+    },
     createdAt: {
       allowNull: false,
       type: Sequelize.DATE

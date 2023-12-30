@@ -35,7 +35,10 @@ module.exports = {
       },
       isPublic:{
         type : Sequelize.BOOLEAN,
-        defaulValue : false
+        defaultValue : false
+      },
+      photoUrl :{
+        type : Sequelize.STRING,
       },
       createdAt: {
         allowNull: false,

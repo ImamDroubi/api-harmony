@@ -14,7 +14,7 @@ module.exports = (sequelize, DataTypes) => {
   TrackCombination.init({
     volume:{
       type : DataTypes.INTEGER,
-      defaulValue: 50,
+      defaultValue: 50,
       allowNull : false
     },
   }, {

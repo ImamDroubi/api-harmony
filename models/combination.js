@@ -28,6 +28,12 @@ module.exports =(sequelize, DataTypes) => {
         notEmpty: true,
       }
     },
+    photoUrl :{
+      type : DataTypes.STRING,
+      validate:{
+        isUrl : true
+      }
+    },
     category:{
       type: DataTypes.STRING,
       validate :{
@@ -36,7 +42,7 @@ module.exports =(sequelize, DataTypes) => {
     },
     isPublic:{
       type : DataTypes.BOOLEAN,
-      defaulValue : false
+      defaultValue : false
     }
   }, {
     sequelize,
