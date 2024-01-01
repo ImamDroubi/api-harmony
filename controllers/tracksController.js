@@ -1,4 +1,3 @@
-const { Transaction } = require("sequelize");
 const {Track ,User} = require("../models");
 const createError = require("../utilities/createError");
 
@@ -64,7 +63,7 @@ module.exports = {
         }
       }
     })
-    if(!user) return next(createError(404, "No User Found"));
+    if(!user) return next(createError(404, "No user found or no public tracks for this user."));
     res
     .status(200)
     .json(user.Tracks);

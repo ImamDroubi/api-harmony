@@ -1,7 +1,8 @@
 const express = require("express");
 const {User} = require("./models");
 const authRoute = require("./routes/authRoute");
-const trackRoute = require("./routes/trackRoute");
+const tracksRoute = require("./routes/tracksRoute");
+const combinationsRoute = require("./routes/combinationsRoute");
 const dotenv = require("dotenv");
 const cookieParser = require("cookie-parser");
 const PORT = process.env.PORT || 8000 ; 
@@ -20,7 +21,8 @@ app.use(express.json());
 
 //ROUTES
 app.use("/api/auth" , authRoute)
-app.use("/api/tracks" , trackRoute)
+app.use("/api/tracks" , tracksRoute)
+app.use("/api/combinations" , combinationsRoute)
 
 // ERROR HANDLING 
 app.use((err,req,res,next)=>{

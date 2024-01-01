@@ -10,7 +10,7 @@ module.exports =(sequelize, DataTypes) => {
     static associate(models) {
       // define association here
       Combination.belongsTo(models.User);
-      Combination.belongsToMany(models.Track, {through: models.TrackCombination, foreignKey:{name :'trackId'}});
+      Combination.belongsToMany(models.Track, {through: models.Tracks_Combination, foreignKey:{name :'combinationId'}});
     }
   }
   Combination.init({
