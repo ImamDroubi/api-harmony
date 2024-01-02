@@ -31,7 +31,43 @@ module.exports = {
       next(error);
     }
   },
-
+  toggleFollowUser: async(req,res,next)=>{
+    const trans = await User.sequelize.transaction();
+    try {
+      const targetUser = await User.findOne({
+        where : {id : req.params.id}
+      });
+      let message = "";
+      const isFollowed = await targetUser.hasFollower(req.user.id);
+      if(isFollowed){
+        await targetUser.removeFollower(req.user.id , {transaction : trans});
+        message = "Follow removed successfully.";
+      }else{
+        await targetUser.addFollower(req.user.id , {transaction : trans});
+        message = "Follow added successfully.";
+      }
+      res
+      .status(200)
+      .json(message);
+      await trans.commit();
+    } catch (error) {
+      await trans.rollback();
+      next(error);
+    }
+  },
+  getFollowersCount : async(req,res,next)=>{
+    try {
+      const user = await User.findOne({
+        where : {id : req.params.id}
+      });
+      const count = await user.countFollowers();
+      res
+      .status(200)
+      .json({"followers" : count});
+    } catch (error) {
+      next(error);
+    }
+  },
   updateUser : async(req,res,next)=>{
     const {username, profilePicture, email} = req.body;
     const trans = await User.sequelize.transaction();
