@@ -5,28 +5,24 @@
 
 module.exports = {
   up : (queryInterface, Sequelize)=> {
-    return queryInterface.createTable('likes',{
-      id:{
-        type : Sequelize.UUID,
-        defaultValue: Sequelize.UUIDV4,
-        primaryKey: true,
-        unique : true
-      },
+    return queryInterface.createTable('tracks_likes',{
       userId: {
         type: Sequelize.UUID,
         onDelete: 'CASCADE',
+        primaryKey : true,
         references: {
           model: 'Users',
           key: 'id',
         }
       },
-      objectId:{
-        type : Sequelize.UUID,
-        allowNull : false
-      },
-      type:{
-        type : Sequelize.STRING,
-        allowNull : false,
+      trackId: {
+        type: Sequelize.UUID,
+        onDelete: 'CASCADE',
+        primaryKey : true,
+        references: {
+          model: 'Tracks',
+          key: 'id',
+        }
       },
       createdAt: {
         allowNull: false,
@@ -37,8 +33,9 @@ module.exports = {
         type: Sequelize.DATE
       }
     });
+    
   },
     down: (queryInterface, Sequelize)=> {
-    return queryInterface.dropTable('likes');
+    return queryInterface.dropTable('tracks_likes');
   }
 }

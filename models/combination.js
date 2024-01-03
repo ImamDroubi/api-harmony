@@ -11,6 +11,12 @@ module.exports =(sequelize, DataTypes) => {
       // define association here
       Combination.belongsTo(models.User);
       Combination.belongsToMany(models.Track, {through: models.Tracks_Combination, foreignKey:{name :'combinationId'}});
+      Combination.belongsToMany(models.User, {
+        as:'Likers',
+        through: 'Combinations_Like',
+        foreignKey : 'combinationId',
+        otherKey: 'userId'
+      });
     }
   }
   Combination.init({

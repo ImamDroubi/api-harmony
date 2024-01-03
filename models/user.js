@@ -18,14 +18,14 @@ module.exports = (sequelize, DataTypes) => {
         onDelete : 'CASCADE'
       });
 
-      User.hasMany(models.Like,{
-        foreignKey : {
-          type : DataTypes.UUID,
-          allowNull : false,
-          name :'userId'
-        },
-        onDelete : 'CASCADE'
-      });
+      // User.hasMany(models.Like,{
+      //   foreignKey : {
+      //     type : DataTypes.UUID,
+      //     allowNull : false,
+      //     name :'userId'
+      //   },
+      //   onDelete : 'CASCADE'
+      // });
       User.hasMany(models.Combination, {
         foreignKey : {
           type : DataTypes.UUID,
@@ -34,8 +34,30 @@ module.exports = (sequelize, DataTypes) => {
         },
         onDelete : 'CASCADE'
       });
-      User.belongsToMany(models.User, {as:'Followees', through:'Follower', foreignKey:'followerId' , otherKey : 'followingId'});
-      User.belongsToMany(models.User , {as:'Followers',through: 'Follower', foreignKey : 'followingId' , otherKey: 'followerId'});
+      User.belongsToMany(models.User, {
+        as:'Followees',
+        through:'Follower',
+        foreignKey:'followerId',
+        otherKey : 'followingId'
+      });
+      User.belongsToMany(models.User, {
+        as:'Followers',
+        through: 'Follower',
+        foreignKey : 'followingId',
+        otherKey: 'followerId'
+      });
+      User.belongsToMany(models.Track, {
+        as:'Sounds',
+        through: 'Tracks_Like',
+        foreignKey : 'userId',
+        otherKey: 'trackId'
+      });
+      User.belongsToMany(models.Combination, {
+        as:'Collections',
+        through: 'Combinations_Like',
+        foreignKey : 'userId',
+        otherKey: 'combinationId'
+      });
     }
   }
   User.init({

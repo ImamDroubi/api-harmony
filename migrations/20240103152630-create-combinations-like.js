@@ -2,22 +2,22 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   up(queryInterface, Sequelize) {
-    return queryInterface.createTable('followers', {
-      followerId:{
+    return queryInterface.createTable('Combinations_Likes', {
+      userId: {
         type: Sequelize.UUID,
         onDelete: 'CASCADE',
-        primaryKey: true,
+        primaryKey : true,
         references: {
           model: 'Users',
           key: 'id',
         }
       },
-      followingId:{
+      combinationId: {
         type: Sequelize.UUID,
         onDelete: 'CASCADE',
-        primaryKey: true,
+        primaryKey : true,
         references: {
-          model: 'Users',
+          model: 'Combinations',
           key: 'id',
         }
       },
@@ -32,6 +32,6 @@ module.exports = {
     });
   },
   down(queryInterface, Sequelize) {
-    return queryInterface.dropTable('followers');
+    return queryInterface.dropTable('Combinations_Likes');
   }
 };
