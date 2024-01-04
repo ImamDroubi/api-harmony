@@ -1,10 +1,10 @@
 'use strict';
 
-
 /** @type {import('sequelize-cli').Migration} */
+
 module.exports = {
   up : (queryInterface, Sequelize)=> {
-    return queryInterface.createTable('tracks',{
+    return queryInterface.createTable('combinations',{
       id:{
         type : Sequelize.UUID,
         defaultValue: Sequelize.UUIDV4,
@@ -19,34 +19,29 @@ module.exports = {
           notEmpty: true,
         }
       },
-      url : {
-        type: Sequelize.STRING,
-        allowNull : false,
-        validate:{
-          isUrl : true,
-        }
-      },
-      photoUrl :{
-        type : Sequelize.STRING,
-      },
-      category:{
-        type: Sequelize.STRING,
-        validate :{
-          max:30
+      categoryId:{
+        type: Sequelize.INTEGER,
+        allowNull : true,
+        onDelete : 'SET NULL',
+        references : {
+          model : 'Categories',
+          key : 'id'
         }
       },
       userId: {
         type: Sequelize.UUID,
-        onDelete: 'CASCADE',     
+        onDelete: 'CASCADE',
         references: {
           model: 'Users',
           key: 'id',
         }
       },
-      duration: Sequelize.INTEGER,
       isPublic:{
         type : Sequelize.BOOLEAN,
         defaultValue : false
+      },
+      photoUrl :{
+        type : Sequelize.STRING,
       },
       createdAt: {
         allowNull: false,
@@ -59,6 +54,6 @@ module.exports = {
     });
   },
     down: (queryInterface, Sequelize)=> {
-    return queryInterface.dropTable('tracks');
+    return queryInterface.dropTable('combinations');
   }
 }

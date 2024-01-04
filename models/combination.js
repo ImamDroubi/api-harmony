@@ -17,6 +17,7 @@ module.exports =(sequelize, DataTypes) => {
         foreignKey : 'combinationId',
         otherKey: 'userId'
       });
+      Combination.belongsTo(models.Category);
     }
   }
   Combination.init({
@@ -38,12 +39,6 @@ module.exports =(sequelize, DataTypes) => {
       type : DataTypes.STRING,
       validate:{
         isUrl : true
-      }
-    },
-    category:{
-      type: DataTypes.STRING,
-      validate :{
-        max:30
       }
     },
     isPublic:{

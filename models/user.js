@@ -18,14 +18,6 @@ module.exports = (sequelize, DataTypes) => {
         onDelete : 'CASCADE'
       });
 
-      // User.hasMany(models.Like,{
-      //   foreignKey : {
-      //     type : DataTypes.UUID,
-      //     allowNull : false,
-      //     name :'userId'
-      //   },
-      //   onDelete : 'CASCADE'
-      // });
       User.hasMany(models.Combination, {
         foreignKey : {
           type : DataTypes.UUID,
@@ -57,6 +49,11 @@ module.exports = (sequelize, DataTypes) => {
         through: 'Combinations_Like',
         foreignKey : 'userId',
         otherKey: 'combinationId'
+      });
+      User.belongsToMany(models.Category, {
+        through: 'Users_Category',
+        foreignKey : 'userId',
+        otherKey : 'categoryId'
       });
     }
   }

@@ -25,6 +25,7 @@ module.exports =(sequelize, DataTypes) => {
         foreignKey : 'trackId',
         otherKey: 'userId'
       });
+      Track.belongsTo(models.Category);
     }
   }
   Track.init({
@@ -53,12 +54,6 @@ module.exports =(sequelize, DataTypes) => {
       type : DataTypes.STRING,
       validate:{
         isUrl : true
-      }
-    },
-    category:{
-      type: DataTypes.STRING,
-      validate :{
-        max:30
       }
     },
     duration: DataTypes.INTEGER,

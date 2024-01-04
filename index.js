@@ -5,6 +5,7 @@ const tracksRoute = require("./routes/tracksRoute");
 const combinationsRoute = require("./routes/combinationsRoute");
 const usersRoute = require("./routes/usersRoute");
 const likesRoute = require("./routes/likesRoute");
+const categoriesRoute = require("./routes/categoriesRoute");
 const dotenv = require("dotenv");
 const cookieParser = require("cookie-parser");
 const PORT = process.env.PORT || 8000 ; 
@@ -28,6 +29,7 @@ app.use("/api/tracks" , tracksRoute)
 app.use("/api/combinations" , combinationsRoute)
 app.use("/api/users" , usersRoute)
 app.use("/api/likes" , likesRoute)
+app.use("/api/categories" , categoriesRoute)
 
 // ERROR HANDLING 
 app.use((err,req,res,next)=>{
