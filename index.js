@@ -9,14 +9,17 @@ const categoriesRoute = require("./routes/categoriesRoute");
 const dotenv = require("dotenv");
 const cookieParser = require("cookie-parser");
 const PORT = process.env.PORT || 8000 ; 
+const cors = require('cors');
 
 const app = express();
 dotenv.config(); 
-
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Credentials', 'true');
-  next();
-});
+// app.use(cors({
+//   origin : "http://localhost:3000"
+// }))
+// app.use((req, res, next) => {
+//   res.header('Access-Control-Allow-Credentials', 'true');
+//   next();
+// });
 
 //MIDDLEWARES
 app.use(cookieParser()); 

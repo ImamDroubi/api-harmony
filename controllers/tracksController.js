@@ -42,7 +42,20 @@ module.exports = {
   },
   getAllTracks: async(req,res,next)=>{
     try{
-      const tracks = await Track.findAll();
+      const tracks = await Track.findAll(
+        {
+          include : [
+            {
+              model : Category,
+              attributes :['name']
+            },
+            {
+              model : User ,
+              attributes : ['username']
+            }
+          ],
+        }
+      );
       res
       .status(200)
       .json(tracks);
@@ -56,7 +69,17 @@ module.exports = {
       const tracks = await Track.findAll({
         where :{
           isPublic : true
-        }
+        },
+        include : [
+          {
+            model : Category,
+            attributes :['name']
+          },
+          {
+            model : User ,
+            attributes : ['username']
+          }
+        ],
       });
       res
       .status(200)
@@ -68,21 +91,25 @@ module.exports = {
   // get user public tracks 
   getUserPublicTracks: async(req,res,next)=>{
     try {
-    const user = await User.findOne({
+    const tracks = await Track.findAll({
       where:{
-        id : req.params.id
+        userId : req.params.id,
+        isPublic : true
       },
-      include: {
-        model : Track,
-        where : {
-          isPublic : true
+      include : [
+        {
+          model : Category,
+          attributes :['name']
+        },
+        {
+          model : User ,
+          attributes : ['username']
         }
-      }
+      ],
     })
-    if(!user) return next(createError(404, "No user found or no public tracks for this user."));
     res
     .status(200)
-    .json(user.Tracks);
+    .json(tracks);
     } catch (error) {
       next(error);
     }
@@ -91,16 +118,24 @@ module.exports = {
   // get user tracks
   getUserTracks: async(req,res,next)=>{
     try {
-    const user = await User.findOne({
+    const tracks = await Track.findAll({
       where:{
-        id : req.params.id
+        userId : req.params.id
       },
-      include: Track
+      include : [
+        {
+          model : Category,
+          attributes :['name']
+        },
+        {
+          model : User ,
+          attributes : ['username']
+        }
+      ],
     })
-    if(!user) return next(404, "No User Found");
     res
     .status(200)
-    .json(user.Tracks);
+    .json(tracks);
     } catch (error) {
       next(error);
     }
@@ -112,7 +147,17 @@ module.exports = {
       const track = await Track.findOne({
         where : {
           id : req.params.id
-        }
+        },
+        include : [
+          {
+            model : Category,
+            attributes :['name']
+          },
+          {
+            model : User ,
+            attributes : ['username']
+          }
+        ],
       });
       if(!track) return next(createError(404, "Track not found."));
       if(track.dataValues.userId !== req.user?.id
@@ -126,6 +171,24 @@ module.exports = {
       next(error);
     }
 
+  },
+  //get multiple tracks 
+  getTracks: async(req,res,next)=>{
+    const { tracksIds = [] } = req.query ;
+    try{
+      const tracks = await Track.findAll({
+        where : {
+          id: tracksIds,
+          userId : req.user.id
+        }
+      });
+      res
+      .status(200)
+      .json(tracks);
+    }catch(error){
+      next(error);
+    }
+    
   },
   // update track
   updateTrack : async(req,res,next)=>{

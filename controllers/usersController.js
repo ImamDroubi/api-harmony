@@ -92,10 +92,10 @@ module.exports = {
     }
   },
   updatePassword : async(req,res,next)=>{
-    const trans = await User.sequelize.transaction();
     if(!req.body.oldPassword || !req.body.password){
       return next(createError(400, "Provide password and old password."));
     }
+    const trans = await User.sequelize.transaction();
     try {
       const user = await User.findOne({
         where :{

@@ -17,7 +17,7 @@ module.exports = {
     },{ transaction: trans })
     const token = jwt.sign({id:user.id, admin:false} , process.env.JWT_SECRET_KEY); 
     const {password,isAdmin, ...reducedUser} = user.dataValues;
-    res.cookie("access_token" , token)
+    res.cookie("access_token" , token, {path:"/",sameSite : false})
     .status(201)
     .json(reducedUser);
     await trans.commit(); 
@@ -35,16 +35,16 @@ module.exports = {
         }
       });
       if(!user){
-        next(createError(404, "User not registered."));
+        return next(createError(404, "User not registered."));
       }
       const match = await bcrypt.compare(req.body.password, user.password);
       if(!match){
-        next(createError(401, "Wrong credintials."));
+        return next(createError(401, "Wrong email or password."));
       }
       const token = jwt.sign({id:user.id, admin:user.isAdmin} , process.env.JWT_SECRET_KEY);
       const {password,isAdmin, ...reducedUser} = user.dataValues;
 
-      res.cookie("access_token" , token)
+      res.cookie("access_token" , token, {path:"/",sameSite : false})
       .status(200)
       .json(reducedUser);
     }catch(error){
