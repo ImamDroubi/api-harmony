@@ -1,4 +1,3 @@
-const { Op } = require("sequelize");
 const {Category, User} = require("../models");
 const createError = require("../utilities/createError");
 const { capetalize } = require("../utilities/reform");

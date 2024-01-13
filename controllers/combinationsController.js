@@ -1,6 +1,6 @@
-const {Combination,Track,Tracks_Combination ,User,Category} = require("../models");
+const {Combination,Track,Tracks_Combination ,User,Category, sequelize,Combinations_Like,Like, Sequelize} = require("../models");
 const createError = require("../utilities/createError");
-const { capetalize } = require("../utilities/reform");
+const { capetalize, reformCombination } = require("../utilities/reform");
 
 module.exports = {
   createCombination : async(req,res,next)=>{
@@ -59,7 +59,35 @@ module.exports = {
   },
   getAllCombinations: async(req,res,next)=>{
     try{
-      const combinations = await Combination.findAll();
+      let combinations = await Combination.findAll({
+        include:[
+          {
+            model : Track,
+            attributes :['id','url'],
+            through : {Tracks_Combination , attributes: ['volume']}
+          },
+          {
+            model : Category,
+            attributes :['name']
+          },
+          {
+            model: User,
+            attributes :['id', 'username']
+          },
+          {
+            model: User,
+            as: 'Likers',
+            attributes:['id'],
+            through:{
+              Combinations_Like,
+              attributes:[]
+            }
+          }
+        ]
+      });
+      combinations = combinations.map(comb=>{
+        return reformCombination(comb,req.user?.id);
+      })
       res
       .status(200)
       .json(combinations);
@@ -70,11 +98,38 @@ module.exports = {
   // get all public combinations 
   getAllPublicCombinations: async(req,res,next)=>{
     try{
-      const combinations = await Combination.findAll({
+      let combinations = await Combination.findAll({
         where :{
           isPublic : true
-        }
+        },
+        include:[
+          {
+            model : Track,
+            attributes :['id','url'],
+            through : {Tracks_Combination , attributes: ['volume']}
+          },
+          {
+            model : Category,
+            attributes :['name']
+          },
+          {
+            model: User,
+            attributes :['id', 'username']
+          },
+          {
+            model: User,
+            as: 'Likers',
+            attributes:['id'],
+            through:{
+              Combinations_Like,
+              attributes:[]
+            }
+          }
+        ]
       });
+      combinations = combinations.map(comb=>{
+        return reformCombination(comb,req.user?.id);
+      })
       res
       .status(200)
       .json(combinations);
@@ -85,21 +140,42 @@ module.exports = {
   // get user public combinations 
   getUserPublicCombinations: async(req,res,next)=>{
     try {
-    const user = await User.findOne({
-      where:{
-        id : req.params.id
-      },
-      include: {
-        model : Combination,
-        where : {
+      let combinations= await Combination.findAll({
+        where : { 
+          userId : req.params.id, 
           isPublic : true
-        }
-      }
-    })
-    if(!user) return next(createError(404, "No User found or no public combinations for that user."));
+        },
+        include:[
+          {
+            model : Track,
+            attributes :['id','url'],
+            through : {Tracks_Combination , attributes: ['volume']}
+          },
+          {
+            model : Category,
+            attributes :['name']
+          },
+          {
+            model: User,
+            attributes :['id', 'username']
+          },
+          {
+            model: User,
+            as: 'Likers',
+            attributes:['id'],
+            through:{
+              Combinations_Like,
+              attributes:[]
+            }
+          }
+        ]
+      })
+      combinations = combinations.map(comb=>{
+        return reformCombination(comb,req.user?.id);
+      })
     res
     .status(200)
-    .json(user.Combinations);
+    .json(combinations);
     } catch (error) {
       next(error);
     }
@@ -108,16 +184,42 @@ module.exports = {
   // get user combinations
   getUserCombinations: async(req,res,next)=>{
     try {
-    const user = await User.findOne({
-      where:{
-        id : req.params.id
+    let combinations = await Combination.findAll({
+      where : {
+        userId: req.params.id
       },
-      include: Combination
+      include:[
+        {
+          model : Track,
+          attributes :['id','url'],
+          through : {Tracks_Combination , attributes: ['volume']}
+        },
+        {
+          model : Category,
+          attributes :['name']
+        },
+        {
+          model: User,
+          attributes :['id', 'username']
+        },
+        {
+          model: User,
+          as: 'Likers',
+          attributes:['id'],
+          through:{
+            Combinations_Like,
+            attributes:[]
+          }
+        }
+      ]
     })
-    if(!user) return next(404, "No User Found");
+
+    combinations = combinations.map(comb=>{
+      return reformCombination(comb,req.user?.id);
+    })
     res
     .status(200)
-    .json(user.Combinations);
+    .json(combinations);
     } catch (error) {
       next(error);
     }
@@ -126,16 +228,33 @@ module.exports = {
   // get combination 
   getCombination: async(req,res,next)=>{
     try {
-      const combination = await Combination.findOne({
+      let combination = await Combination.findOne({
         where : {
           id : req.params.id
-        }
+        },
+        include:[
+          {
+            model : Track,
+            attributes :['id','url'],
+            through : {Tracks_Combination , attributes: ['volume']}
+          },
+          {
+            model : Category,
+            attributes :['name']
+          },
+          {
+            model: User,
+            attributes :['id', 'username']
+          }
+        ]
       });
       if(!combination) return next(createError(404, "Combination not found."));
       if(combination.dataValues.userId !== req.user?.id
         && combination.dataValues.isPublic === false 
         && !req.user?.admin)
         return next(createError(401, "Not Authorized."));
+
+      combination = reformCombination(combination,req.user?.id);
       res
       .status(200)
       .json(combination);

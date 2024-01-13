@@ -1,6 +1,7 @@
-const {Track ,User,Category} = require("../models");
+const { Op } = require("sequelize");
+const {Track ,User,Category,Tracks_Like} = require("../models");
 const createError = require("../utilities/createError");
-const { capetalize } = require("../utilities/reform");
+const { capetalize, reformTrack } = require("../utilities/reform");
 
 module.exports = {
   createTrack : async(req,res,next)=>{
@@ -42,7 +43,7 @@ module.exports = {
   },
   getAllTracks: async(req,res,next)=>{
     try{
-      const tracks = await Track.findAll(
+      let tracks = await Track.findAll(
         {
           include : [
             {
@@ -51,11 +52,25 @@ module.exports = {
             },
             {
               model : User ,
-              attributes : ['username']
+              attributes :['id', 'username']
+            },
+            {
+              model: User,
+              as: 'Likers',
+              attributes:['id'],
+              through:{
+                Tracks_Like,
+                attributes:[]
+              }
             }
           ],
         }
       );
+
+      tracks = tracks.map(track=>{
+        return reformTrack(track, req.user?.id);
+      });
+
       res
       .status(200)
       .json(tracks);
@@ -65,33 +80,90 @@ module.exports = {
   },
   // get all public tracks 
   getAllPublicTracks: async(req,res,next)=>{
-    try{
-      const tracks = await Track.findAll({
-        where :{
-          isPublic : true
-        },
-        include : [
-          {
-            model : Category,
-            attributes :['name']
-          },
-          {
-            model : User ,
-            attributes : ['username']
+    const {category} = req.params; 
+    let capetalizedCategory = capetalize(category);
+    let categoryId = undefined; 
+    let tracks = [];
+    if(category){
+      try {
+        let category = await Category.findOne({
+          where : {
+            name : capetalizedCategory
           }
-        ],
-      });
-      res
-      .status(200)
-      .json(tracks);
-    }catch(err){
-      next(err);
+        });
+        if(category)categoryId= category.dataValues.id; 
+        else categoryId = -1; 
+
+        tracks = await Track.findAll({
+          where :{
+            isPublic : true,
+            categoryId : categoryId
+          },
+          include : [
+            {
+              model : Category,
+              attributes :['name']
+            },
+            {
+              model : User ,
+              attributes :['id', 'username']
+            },
+            {
+              model: User,
+              as: 'Likers',
+              attributes:['id'],
+              through:{
+                Tracks_Like,
+                attributes:[]
+              }
+            }
+          ],
+        });
+
+      } catch (error) {
+        return next(error);
+      }
+    }else{
+      try {
+        tracks = await Track.findAll({
+          where :{
+            isPublic : true,
+          },
+          include : [
+            {
+              model : Category,
+              attributes :['name']
+            },
+            {
+              model : User ,
+              attributes :['id', 'username']
+            },
+            {
+              model: User,
+              as: 'Likers',
+              attributes:['id'],
+              through:{
+                Tracks_Like,
+                attributes:[]
+              }
+            }
+          ],
+        }); 
+      } catch (error) {
+        return next(error);
+      }
     }
+    tracks = tracks.map(track=>{
+      return reformTrack(track, req.user?.id);
+    });
+    res
+    .status(200)
+    .json(tracks);
   },
   // get user public tracks 
   getUserPublicTracks: async(req,res,next)=>{
     try {
-    const tracks = await Track.findAll({
+    let tracks = await Track.findAll({
       where:{
         userId : req.params.id,
         isPublic : true
@@ -103,10 +175,23 @@ module.exports = {
         },
         {
           model : User ,
-          attributes : ['username']
+          attributes :['id', 'username']
+        },
+        {
+          model: User,
+          as: 'Likers',
+          attributes:['id'],
+          through:{
+            Tracks_Like,
+            attributes:[]
+          }
         }
       ],
     })
+
+    tracks = tracks.map(track=>{
+      return reformTrack(track, req.user?.id);
+    });
     res
     .status(200)
     .json(tracks);
@@ -118,7 +203,7 @@ module.exports = {
   // get user tracks
   getUserTracks: async(req,res,next)=>{
     try {
-    const tracks = await Track.findAll({
+    let tracks = await Track.findAll({
       where:{
         userId : req.params.id
       },
@@ -129,10 +214,23 @@ module.exports = {
         },
         {
           model : User ,
-          attributes : ['username']
+          attributes :['id', 'username']
+        },
+        {
+          model: User,
+          as: 'Likers',
+          attributes:['id'],
+          through:{
+            Tracks_Like,
+            attributes:[]
+          }
         }
       ],
     })
+
+    tracks = tracks.map(track=>{
+      return reformTrack(track, req.user?.id);
+    });
     res
     .status(200)
     .json(tracks);
@@ -144,7 +242,7 @@ module.exports = {
   // get track 
   getTrack: async(req,res,next)=>{
     try {
-      const track = await Track.findOne({
+      let track = await Track.findOne({
         where : {
           id : req.params.id
         },
@@ -155,10 +253,21 @@ module.exports = {
           },
           {
             model : User ,
-            attributes : ['username']
+            attributes :['id', 'username']
+          },
+          {
+            model: User,
+            as: 'Likers',
+            attributes:['id'],
+            through:{
+              Tracks_Like,
+              attributes:[]
+            }
           }
         ],
       });
+
+      track = reformTrack(track, req.user?.id);
       if(!track) return next(createError(404, "Track not found."));
       if(track.dataValues.userId !== req.user?.id
         && track.dataValues.isPublic === false 
@@ -176,12 +285,35 @@ module.exports = {
   getTracks: async(req,res,next)=>{
     const { tracksIds = [] } = req.query ;
     try{
-      const tracks = await Track.findAll({
+      let tracks = await Track.findAll({
         where : {
           id: tracksIds,
           userId : req.user.id
-        }
+        },
+        include : [
+          {
+            model : Category,
+            attributes :['name']
+          },
+          {
+            model : User ,
+            attributes :['id', 'username']
+          },
+          {
+            model: User,
+            as: 'Likers',
+            attributes:['id'],
+            through:{
+              Tracks_Like,
+              attributes:[]
+            }
+          }
+        ],
       });
+
+      tracks = tracks.map(track=>{
+        return reformTrack(track,req.user?.id);
+      })
       res
       .status(200)
       .json(tracks);
