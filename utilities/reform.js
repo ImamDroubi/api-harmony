@@ -12,11 +12,11 @@ module.exports = {
       if(liker.id === requesterId)isLiked = true;
     })
     combination.dataValues = {
-      ...details, 
       category:Category?.name,
       likes : Likers.length,
-      user:User,
-      isLiked : isLiked
+      owner:User.dataValues,
+      isLiked : isLiked,
+      ...details, 
     }
     return combination;
   },
@@ -27,13 +27,12 @@ module.exports = {
       if(liker.id === requesterId)isLiked = true
       
     });
-    console.log(requesterId);
     track.dataValues = {
-      ...details, 
       category:Category?.name,
       likes : Likers.length,
-      user:User,
-      isLiked : isLiked
+      owner:User.dataValues,
+      isLiked : isLiked,
+      ...details
     }
     return track;
   }

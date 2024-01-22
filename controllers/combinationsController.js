@@ -217,6 +217,7 @@ module.exports = {
     combinations = combinations.map(comb=>{
       return reformCombination(comb,req.user?.id);
     })
+    
     res
     .status(200)
     .json(combinations);
@@ -265,8 +266,24 @@ module.exports = {
   },
   // update combination
   updateCombination : async(req,res,next)=>{
+    const {id, userId, createdAt,category, updatedAt,tracks, ...details} = req.body; 
     const trans = await Combination.sequelize.transaction(); 
     try{
+      const capetalizedCategory = capetalize(category);
+      let db_category = undefined; 
+      if(category){
+        // get the category ID and carete one if it's the first time 
+        const [instance, created] = await Category.findOrCreate({
+          where : {name : capetalizedCategory}
+        });
+        db_category =instance;
+        
+        // add the category to the user categories 
+        const hasCategory = await instance.hasUser(req.user.id);
+        if(!hasCategory){
+          await instance.addUser(req.user.id,{ through: { name: capetalizedCategory }}, {transaction : trans});
+        }
+      }
       const combination = await Combination.findOne({
         where : {
           id : req.params.id
@@ -275,8 +292,8 @@ module.exports = {
       if(!combination) return next(createError(404, "Combination not found."));
       if(combination.dataValues.userId !== req.user?.id && !req.user?.admin)
         return next(createError(401, "Not Authorized."));
-      const {id, userId, createdAt, updatedAt,tracks, ...details} = req.body; 
       await Combination.update({
+        categoryId : db_category?.dataValues.id,
         ...details
       },{
         where: {
