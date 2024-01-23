@@ -1,11 +1,12 @@
 const express = require("express");
-const { verifyToken, verifyAdmin ,verifyUser } = require("../utilities/verifyRequest");
-const { getAllUsers, getUser, updateUser, deleteUser, grantAdmin, revokeAdmin, updatePassword,getFollowersCount, toggleFollowUser } = require("../controllers/usersController");
+const { verifyToken, verifyAdmin ,verifyUser, checkIfTokenExists } = require("../utilities/verifyRequest");
+const { getAllUsers, getUser, updateUser, deleteUser, grantAdmin, revokeAdmin, updatePassword,getFollowersCount, toggleFollowUser, getUserExtended } = require("../controllers/usersController");
 
 const router = express.Router();
 
 router.get("/" ,verifyAdmin, getAllUsers);
 router.get("/user/:id" ,getUser);
+router.get("/user/extended/:id", checkIfTokenExists,getUserExtended);
 router.get("/followers/:id" ,getFollowersCount);
 router.post("/followers/:id",verifyToken ,toggleFollowUser);
 router.patch("/:id" ,verifyUser, updateUser);

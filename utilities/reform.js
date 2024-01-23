@@ -35,5 +35,20 @@ module.exports = {
       ...details
     }
     return track;
+  },
+  reformUser:(user,requesterId)=>{
+    const {Followers,Categories, ...details} = user.dataValues; 
+    let isFollowed = false;
+    Followers.forEach(follower=>{
+      if(follower.id === requesterId)isFollowed = true
+      
+    });
+    user.dataValues = {
+      followersCount : Followers.length,
+      isFollowed : isFollowed,
+      categories : Categories,
+      ...details
+    }
+    return user;
   }
 }

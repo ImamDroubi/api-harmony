@@ -1,6 +1,7 @@
-const {User} = require("../models");
+const {User,Category} = require("../models");
 const bcrypt = require('bcrypt');
 const createError = require("../utilities/createError");
+const { reformUser } = require("../utilities/reform");
 
 module.exports = {
   getAllUsers : async(req,res,next)=>{
@@ -24,6 +25,33 @@ module.exports = {
         },
         attributes : ['username', 'email' , 'profilePicture']
       });
+      res
+      .status(200)
+      .json(user);
+    } catch (error) {
+      next(error);
+    }
+  },
+  getUserExtended : async(req,res,next)=>{
+    try {
+      let user = await User.findOne({
+        where : {
+          id : req.params.id
+        },
+        attributes : ['id','username', 'email' , 'profilePicture'],
+        include : [
+          {
+            model : Category,
+            attributes :['name']
+          },
+          {
+            model : User ,
+            as : 'Followers',
+            attributes :['id', 'username']
+          }
+        ],
+      });
+      user = reformUser(user , req.user?.id);
       res
       .status(200)
       .json(user);
