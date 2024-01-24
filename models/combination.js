@@ -35,6 +35,10 @@ module.exports =(sequelize, DataTypes) => {
         notEmpty: true,
       }
     },
+    description:{
+      type: DataTypes.TEXT,
+      allowNull : true
+    },
     photoUrl :{
       type : DataTypes.STRING,
       validate:{

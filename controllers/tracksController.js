@@ -78,6 +78,44 @@ module.exports = {
       next(err);
     }
   },
+  // clone a public track from another user 
+  cloneTrack: async(req,res,next)=>{
+    const trackId = req.params.id ;
+    if(!trackId){
+      return next(createError(500, "Provide a track to be cloned!"));
+    }
+    const track = await Track.findOne({
+      where : {
+        id : trackId
+      }
+    });
+    if(!track)return next(createError(404, "Track not found!"));
+    if(!track.isPublic)return next(createError(401, "This is not a public track!"));
+    const {name, categoryId, duration, url, photoUrl} = track; 
+    const newTrack = {
+      name,
+      categoryId,
+      duration,
+      userId: req.user.id,
+      url,
+      photoUrl,
+      isPublic : false
+    }
+    const trans = await Track.sequelize.transaction();
+    try {
+      const dbTrack = await Track.create({
+        ...newTrack
+      }, {transaction:trans})
+      res
+      .status(201)
+      .json(dbTrack);
+      await trans.commit();
+    } catch (error) {
+      await trans.rollback();
+      return next(error);
+    }
+    
+  },
   // get all public tracks 
   getAllPublicTracks: async(req,res,next)=>{
     const {category} = req.params; 

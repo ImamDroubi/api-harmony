@@ -4,7 +4,7 @@ const { capetalize, reformCombination } = require("../utilities/reform");
 
 module.exports = {
   createCombination : async(req,res,next)=>{
-    const {name, category, photoUrl, isPublic , tracks} = req.body ;
+    const {name, category, photoUrl, isPublic ,description, tracks} = req.body ;
     const trans = await Combination.sequelize.transaction();
     console.log(category);
     try {
@@ -39,6 +39,7 @@ module.exports = {
         name,
         categoryId : db_category?.dataValues.id,
         photoUrl,
+        description,
         isPublic,
         userId : req.user.id
       },{transaction : trans});
@@ -56,6 +57,57 @@ module.exports = {
       await trans.rollback();
       next(error);
     }
+  },
+  cloneCombination: async(req,res,next)=>{
+    const combinationId = req.params.id ;
+    if(!combinationId){
+      return next(createError(500, "Provide a combination to be cloned!"));
+    }
+    const combination = await Combination.findOne({
+      where : {
+        id : combinationId
+      },
+      include: {
+        model : Track
+      }
+    });
+    if(!combination)return next(createError(404, "combination not found!"));
+    if(!combination.isPublic)return next(createError(401, "This is not a public combination!"));
+    const {name, categoryId, photoUrl,description, Tracks} = combination; 
+    const tracks = Tracks.map(track=>{
+      return {
+        name : track.dataValues.name,
+        categoryId : track.dataValues.categoryId, 
+        duration : track.dataValues.duration, 
+        userId: req.user.id,
+        url : track.dataValues.url, 
+        photoUrl : track.dataValues.photoUrl,
+        Tracks_Combination : track.dataValues.Tracks_Combination
+      }
+    }); 
+
+    const trans = await Combination.sequelize.transaction();   
+    try {
+      const newcombination = await Combination.create({
+        name,
+        categoryId,
+        userId: req.user.id,
+        photoUrl,
+        isPublic : false,
+        description,
+        Tracks : tracks
+      },{
+        include : [Track]
+      }, {transaction:trans})
+      res
+      .status(201)
+      .json(newcombination);
+      await trans.commit();
+    } catch (error) {
+      await trans.rollback();
+      return next(error);
+    }
+    
   },
   getAllCombinations: async(req,res,next)=>{
     try{
@@ -97,45 +149,96 @@ module.exports = {
   },
   // get all public combinations 
   getAllPublicCombinations: async(req,res,next)=>{
-    try{
-      let combinations = await Combination.findAll({
-        where :{
-          isPublic : true
-        },
-        include:[
-          {
-            model : Track,
-            attributes :['id','url'],
-            through : {Tracks_Combination , attributes: ['volume']}
-          },
-          {
-            model : Category,
-            attributes :['name']
-          },
-          {
-            model: User,
-            attributes :['id', 'username']
-          },
-          {
-            model: User,
-            as: 'Likers',
-            attributes:['id'],
-            through:{
-              Combinations_Like,
-              attributes:[]
-            }
+    const {category} = req.params; 
+    let capetalizedCategory = capetalize(category);
+    let categoryId = undefined; 
+    let combinations = [];
+    
+    if(category){
+      try {
+        let category = await Category.findOne({
+          where : {
+            name : capetalizedCategory
           }
-        ]
-      });
-      combinations = combinations.map(comb=>{
-        return reformCombination(comb,req.user?.id);
-      })
-      res
-      .status(200)
-      .json(combinations);
-    }catch(err){
-      next(err);
-    }
+        });
+        if(category)categoryId= category.dataValues.id; 
+        else categoryId = -1; 
+
+        combinations = await Combination.findAll({
+          where :{
+            isPublic : true,
+            categoryId: categoryId
+          },
+          include:[
+            {
+              model : Track,
+              attributes :['id','url'],
+              through : {Tracks_Combination , attributes: ['volume']}
+            },
+            {
+              model : Category,
+              attributes :['name']
+            },
+            {
+              model: User,
+              attributes :['id', 'username']
+            },
+            {
+              model: User,
+              as: 'Likers',
+              attributes:['id'],
+              through:{
+                Combinations_Like,
+                attributes:[]
+              }
+            }
+          ]
+        });
+
+      } catch (error) {
+        return next(error);
+      }
+    }else{
+      try{
+        combinations = await Combination.findAll({
+          where :{
+            isPublic : true
+          },
+          include:[
+            {
+              model : Track,
+              attributes :['id','url'],
+              through : {Tracks_Combination , attributes: ['volume']}
+            },
+            {
+              model : Category,
+              attributes :['name']
+            },
+            {
+              model: User,
+              attributes :['id', 'username']
+            },
+            {
+              model: User,
+              as: 'Likers',
+              attributes:['id'],
+              through:{
+                Combinations_Like,
+                attributes:[]
+              }
+            }
+          ]
+        });
+      }catch(err){
+        next(err);
+      }
+    }   
+    combinations = combinations.map(comb=>{
+      return reformCombination(comb,req.user?.id);
+    })
+    res
+    .status(200)
+    .json(combinations);
   },
   // get user public combinations 
   getUserPublicCombinations: async(req,res,next)=>{

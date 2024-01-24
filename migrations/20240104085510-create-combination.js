@@ -19,6 +19,10 @@ module.exports = {
           notEmpty: true,
         }
       },
+      description : {
+        type:Sequelize.TEXT,
+        allowNull:true
+      },
       categoryId:{
         type: Sequelize.INTEGER,
         allowNull : true,
